@@ -7,12 +7,18 @@ import com.github.khanshoaib3.minecraft_access.utils.condition.Interval;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.mob.HostileEntity;
-import net.minecraft.entity.mob.Monster;
-import net.minecraft.entity.mob.WaterCreatureEntity;
+import net.minecraft.entity.boss.WitherEntity;
+import net.minecraft.entity.boss.dragon.EnderDragonEntity;
+import net.minecraft.entity.mob.*;
+import net.minecraft.entity.passive.IronGolemEntity;
 import net.minecraft.entity.passive.PassiveEntity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.projectile.ArrowEntity;
+import net.minecraft.entity.projectile.PersistentProjectileEntity;
+import net.minecraft.entity.projectile.ProjectileEntity;
+import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.entity.vehicle.VehicleEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -30,8 +36,10 @@ import java.util.function.Predicate;
 public class POIEntities {
     private TreeMap<Double, Entity> passiveEntity = new TreeMap<>();
     private TreeMap<Double, Entity> hostileEntity = new TreeMap<>();
+    private TreeMap<Double, Entity> bossEntities = new TreeMap<>();
     private TreeMap<Double, Entity> markedEntities = new TreeMap<>();
     private TreeMap<Double, Entity> vehicleEntities = new TreeMap<>();
+    private TreeMap<Double, Entity> playerEntities = new TreeMap<>();
 
     private int range;
     private boolean playSound;
@@ -73,8 +81,10 @@ public class POIEntities {
 
             passiveEntity = new TreeMap<>();
             hostileEntity = new TreeMap<>();
+            bossEntities = new TreeMap<>();
             markedEntities = new TreeMap<>();
             vehicleEntities = new TreeMap<>();
+            playerEntities = new TreeMap<>();
 
             log.debug("POIEntities started.");
 
@@ -100,22 +110,23 @@ public class POIEntities {
                     return;
                 }
 
-                if (i instanceof PassiveEntity) {
-                    passiveEntity.put(distance, i);
-                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 0f);
-                } else if (i instanceof Monster) {
+                if (i instanceof MobEntity mob && mob.getMaxHealth() >= 80 && !(i instanceof IronGolemEntity)) {
+                    bossEntities.put(distance, i);
+                    hostileEntity.put(distance, i);
+                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 2f);
+                } else if (i instanceof Monster || i instanceof Angerable angerable && angerable.hasAngerTime()) {
                     hostileEntity.put(distance, i);
                     this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 2f);
-                } else if (i instanceof WaterCreatureEntity) {
-                    passiveEntity.put(distance, i);
-                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 0f);
-                } else if (i instanceof ItemEntity itemEntity && itemEntity.isOnGround()) {
+                } else if (i instanceof ItemEntity itemEntity && itemEntity.isOnGround() || i instanceof  PersistentProjectileEntity projectile && projectile.pickupType.equals(PersistentProjectileEntity.PickupPermission.ALLOWED)) {
                     this.playSoundAt(entityPos, SoundEvents.BLOCK_METAL_PRESSURE_PLATE_CLICK_ON, 2f);
                 } else if (i instanceof PlayerEntity) {
-                    passiveEntity.put(distance, i);
-                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 0f);
+                    playerEntities.put(distance, i);
+                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value(), 1f);
                 } else if (i instanceof VehicleEntity) {
                     vehicleEntities.put(distance, i);
+                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE.value(),  1f);
+                } else if(i instanceof PassiveEntity || i instanceof  WaterCreatureEntity) {
+                    passiveEntity.put(distance, i);
                     this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 0f);
                 }
             }
@@ -169,4 +180,5 @@ public class POIEntities {
     public TreeMap<Double, Entity> getAimAssistTargetCandidates() {
         return hostileEntity;
     }
+
 }
