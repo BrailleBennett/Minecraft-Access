@@ -7,18 +7,12 @@ import com.github.khanshoaib3.minecraft_access.utils.condition.Interval;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityType;
 import net.minecraft.entity.ItemEntity;
-import net.minecraft.entity.boss.WitherEntity;
-import net.minecraft.entity.boss.dragon.EnderDragonEntity;
 import net.minecraft.entity.mob.*;
 import net.minecraft.entity.passive.IronGolemEntity;
-import net.minecraft.entity.passive.PassiveEntity;
+import net.minecraft.entity.passive.TameableEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ArrowEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
-import net.minecraft.entity.projectile.ProjectileEntity;
-import net.minecraft.entity.projectile.TridentEntity;
 import net.minecraft.entity.vehicle.VehicleEntity;
 import net.minecraft.sound.SoundEvent;
 import net.minecraft.sound.SoundEvents;
@@ -34,8 +28,8 @@ import java.util.function.Predicate;
  */
 @Slf4j
 public class POIEntities {
-    private TreeMap<Double, Entity> passiveEntity = new TreeMap<>();
-    private TreeMap<Double, Entity> hostileEntity = new TreeMap<>();
+    private TreeMap<Double, Entity> passiveEntities = new TreeMap<>();
+    private TreeMap<Double, Entity> hostileEntities = new TreeMap<>();
     private TreeMap<Double, Entity> bossEntities = new TreeMap<>();
     private TreeMap<Double, Entity> markedEntities = new TreeMap<>();
     private TreeMap<Double, Entity> vehicleEntities = new TreeMap<>();
@@ -79,8 +73,8 @@ public class POIEntities {
             if (minecraftClient.world == null) return;
             if (minecraftClient.currentScreen != null) return; //Prevent running if any screen is opened
 
-            passiveEntity = new TreeMap<>();
-            hostileEntity = new TreeMap<>();
+            passiveEntities = new TreeMap<>();
+            hostileEntities = new TreeMap<>();
             bossEntities = new TreeMap<>();
             markedEntities = new TreeMap<>();
             vehicleEntities = new TreeMap<>();
@@ -99,9 +93,9 @@ public class POIEntities {
                 if (this.markedEntity.test(i)) {
                     markedEntities.put(distance, i);
                     if (i instanceof HostileEntity) {
-                        this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 2f);
+                        playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 2f);
                     } else {
-                        this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 0f);
+                        playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 0f);
                     }
                 }
 
@@ -110,25 +104,66 @@ public class POIEntities {
                     return;
                 }
 
-                if (i instanceof MobEntity mob && mob.getMaxHealth() >= 80 && !(i instanceof IronGolemEntity)) {
-                    bossEntities.put(distance, i);
-                    hostileEntity.put(distance, i);
-                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 2f);
-                } else if (i instanceof Monster || i instanceof Angerable angerable && angerable.hasAngerTime()) {
-                    hostileEntity.put(distance, i);
-                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 2f);
-                } else if (i instanceof ItemEntity itemEntity && itemEntity.isOnGround() || i instanceof  PersistentProjectileEntity projectile && projectile.pickupType.equals(PersistentProjectileEntity.PickupPermission.ALLOWED)) {
-                    this.playSoundAt(entityPos, SoundEvents.BLOCK_METAL_PRESSURE_PLATE_CLICK_ON, 2f);
-                } else if (i instanceof PlayerEntity) {
-                    playerEntities.put(distance, i);
-                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value(), 1f);
-                } else if (i instanceof VehicleEntity) {
-                    vehicleEntities.put(distance, i);
-                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE.value(),  1f);
-                } else if(i instanceof PassiveEntity || i instanceof  WaterCreatureEntity) {
-                    passiveEntity.put(distance, i);
-                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 0f);
+                switch (i) {
+                    case TameableEntity pet when minecraftClient.player.getUuid().equals(pet.getOwnerUuid()) -> {
+                        passiveEntities.put(distance, i);
+                        playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_FLUTE.value(), 1f);
+                    }
+                    case TameableEntity pet when pet.isTamed() -> {
+                        passiveEntities.put(distance, i);
+                        playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_COW_BELL.value(), 1f);
+                    }
+                    case MobEntity mob when mob.getMaxHealth() >= 80 && !(i instanceof IronGolemEntity) -> {
+                        bossEntities.put(distance, i);
+                        hostileEntities.put(distance, i);
+                        playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 2f);
+                    }
+                    case Monster ignored -> {
+                        hostileEntities.put(distance, i);
+                        playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 2f);
+                    }
+                    case Angerable monster when monster.hasAngerTime() || minecraftClient.player.getUuid().equals(monster.getAngryAt()) || minecraftClient.player.getUuid().equals(monster.getAttacker()) || monster.isUniversallyAngry(minecraftClient.player.getWorld()) -> {
+                        hostileEntities.put(distance, i);
+                        playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 2f);
+                    }
+                    case ItemEntity itemEntity when itemEntity.isOnGround() ->
+                            playSoundAt(entityPos, SoundEvents.BLOCK_METAL_PRESSURE_PLATE_CLICK_ON, 2f);
+                    case PersistentProjectileEntity projectile when projectile.pickupType.equals(PersistentProjectileEntity.PickupPermission.ALLOWED) ->
+                            playSoundAt(entityPos, SoundEvents.BLOCK_METAL_PRESSURE_PLATE_CLICK_ON, 2f);
+                    case PlayerEntity ignored -> {
+                        playerEntities.put(distance, i);
+                        playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value(), 1f);
+                    }
+                    case VehicleEntity ignored -> {
+                        vehicleEntities.put(distance, i);
+                        this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE.value(), 1f);
+                    }
+                    case MobEntity ignored -> {
+                        passiveEntities.put(distance, i);
+                        this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 0f);
+                    }
+                    case Entity ignored -> log.debug("Unhandled POI entity fell through");
                 }
+
+//                if (i instanceof MobEntity mob && mob.getMaxHealth() >= 80 && !(i instanceof IronGolemEntity)) {
+//                    bossEntities.put(distance, i);
+//                    hostileEntity.put(distance, i);
+//                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_PLING.value(), 2f);
+//                } else if (i instanceof Monster || i instanceof Angerable angerable && angerable.hasAngerTime()) {
+//                    hostileEntity.put(distance, i);
+//                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 2f);
+//                } else if (i instanceof ItemEntity itemEntity && itemEntity.isOnGround() || i instanceof  PersistentProjectileEntity projectile && projectile.pickupType.equals(PersistentProjectileEntity.PickupPermission.ALLOWED)) {
+//                    this.playSoundAt(entityPos, SoundEvents.BLOCK_METAL_PRESSURE_PLATE_CLICK_ON, 2f);
+//                } else if (i instanceof PlayerEntity) {
+//                    playerEntities.put(distance, i);
+//                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_CHIME.value(), 1f);
+//                } else if (i instanceof VehicleEntity) {
+//                    vehicleEntities.put(distance, i);
+//                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_IRON_XYLOPHONE.value(),  1f);
+//                } else if(i instanceof MobEntity || i instanceof  WaterCreatureEntity) {
+//                    passiveEntity.put(distance, i);
+//                    this.playSoundAt(entityPos, SoundEvents.BLOCK_NOTE_BLOCK_BELL.value(), 0f);
+//                }
             }
             log.debug("POIEntities end.");
 
@@ -170,15 +205,15 @@ public class POIEntities {
             if (POIMarkingConfigMap.getInstance().isSuppressOtherWhenEnabled()) {
                 return List.of(markedEntities);
             } else {
-                return List.of(markedEntities, hostileEntity, passiveEntity, vehicleEntities);
+                return List.of(markedEntities, hostileEntities, passiveEntities, vehicleEntities);
             }
         } else {
-            return List.of(hostileEntity, passiveEntity, vehicleEntities);
+            return List.of(hostileEntities, passiveEntities, vehicleEntities);
         }
     }
 
     public TreeMap<Double, Entity> getAimAssistTargetCandidates() {
-        return hostileEntity;
+        return hostileEntities;
     }
 
 }
