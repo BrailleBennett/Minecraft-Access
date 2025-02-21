@@ -40,3 +40,4 @@ updates:
         update-types:
           - minor
           - patch
+#force trigger
