@@ -6,7 +6,7 @@ plugins {
     //
     // Latest Test Compatibility: gradle version 8.x shadow version 8.0.0+
     // ref: https://github.com/johnrengelman/shadow
-    id "com.gradleup.shadow" version "8.3.5"
+    alias(libs.plugins.shadow)
 }
 
 architectury {
@@ -31,10 +31,9 @@ configurations {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}"
-    modImplementation include("net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}")
-
-    modImplementation include("dev.architectury:architectury-fabric:${project.architectury_api_version}")
+    modImplementation libs.fabricLoader
+    modImplementation include(libs.fabricApi)
+    modImplementation include(libs.architecturyApiFabric)
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }
     shadowCommon(project(path: ":common", configuration: "transformProductionFabric")) { transitive false }
@@ -45,11 +44,11 @@ processResources {
 
     filesMatching("fabric.mod.json") {
         expand Map.of("version", project.version,
-                "fabric_loader_version", rootProject.fabric_loader_version,
-                "fabric_api_version", rootProject.fabric_api_version,
-                "architectury_api_version", rootProject.architectury_api_version,
+                "fabric_loader_version", libs.fabricLoader.get().version,
+                "fabric_api_version", libs.fabricApi.get().version,
+                "architectury_api_version", libs.architecturyApiFabric.get().version,
                 "jade_fabric_version", rootProject.jade_fabric_version,
-                "minecraft_version", rootProject.minecraft_version)
+                "minecraft_version", libs.minecraft.get().version)
     }
 }
 
