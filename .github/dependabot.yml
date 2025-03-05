@@ -1,4 +1,3 @@
-# trigger
 version: 2
 updates:
   - package-ecosystem: gitsubmodule
@@ -22,6 +21,8 @@ updates:
       interval: weekly
     groups:
       gradle-dependencies:
+        patterns:
+          - "*"
         update-types:
           - minor
           - patch
