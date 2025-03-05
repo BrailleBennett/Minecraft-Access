@@ -23,6 +23,5 @@ updates:
       gradle-dependencies:
         patterns:
           - "*"
-        update-types:
-          - minor
-          - patch
+    ignore:
+      - dependency-name: "maven.modrinth:jade"
