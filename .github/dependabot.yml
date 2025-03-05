@@ -22,6 +22,8 @@ updates:
       interval: weekly
     groups:
       gradle-dependencies:
+        patterns:
+          - "*"
         update-types:
           - minor
           - patch
