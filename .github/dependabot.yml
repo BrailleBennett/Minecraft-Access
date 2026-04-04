@@ -27,4 +27,5 @@ updates:
     patterns: [ "*" ]
     ignore:
       - dependency-name: "maven.modrinth:jade"
+      - dependency-name: "net.neoforged.fancymodloader:loader"
     multi-ecosystem-group: dependencies
