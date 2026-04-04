@@ -14,20 +14,18 @@ pluginManagement {
             }
         }
 
-//        exclusiveContent {
-//            forRepository {
-        maven {
-            name = 'Neoforged'
-            url = 'https://maven.neoforged.net/releases/'
+        exclusiveContent {
+            forRepository {
+                maven {
+                    name = 'Neoforged'
+                    url = 'https://maven.neoforged.net/releases/'
+                }
+            }
+            filter {
+                includeGroupAndSubgroups 'net.neoforged'
+                includeGroup 'de.oceanlabs.mcp'
+            }
         }
-//            }
-//            filter {
-//                includeGroup 'net.neoforged'
-//                includeGroup 'net.neoforged.gradle.userdev'
-//                includeGroup 'net.minecraftforge'
-//                includeGroup 'de.oceanlabs.mcp'
-//            }
-//        }
 
         gradlePluginPortal()
     }
@@ -97,19 +95,17 @@ dependencyResolutionManagement {
             }
         }
 
-//        exclusiveContent {
-//            forRepository {
+        exclusiveContent {
+            forRepository {
                 maven {
                     name = 'Neoforged'
                     url = 'https://maven.neoforged.net/releases/'
                 }
-//            }
-//            filter {
-//                includeGroup 'net.neoforged'
-//                includeGroup 'net.neoforged.accesstransformers'
-//                includeGroup 'net.neoforged.fancymodloader'
-//            }
-        //}
+            }
+            filter {
+                includeGroupAndSubgroups 'net.neoforged'
+            }
+        }
 
         exclusiveContent {
             forRepository {
