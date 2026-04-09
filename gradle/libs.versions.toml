@@ -15,7 +15,7 @@ balmNeoForge = { module = "net.blay09.mods:balm-neoforge", version.ref = "balm" 
 clothConfigCommon = { module = "me.shedaniel.cloth:cloth-config", version.ref = "clothConfig" }
 clothConfigFabric = { module = "me.shedaniel.cloth:cloth-config-fabric", version.ref = "clothConfig" }
 clothConfigNeoForge = { module = "me.shedaniel.cloth:cloth-config-neoforge", version.ref = "clothConfig" }
-fabricApi = "net.fabricmc.fabric-api:fabric-api:0.145.4+26.1.2"
+fabricApi = "net.fabricmc.fabric-api:fabric-api:0.145.5+"
 fabricLoader = "net.fabricmc:fabric-loader:0.19.0"
 jadeFabric = "maven.modrinth:jade:26.0.8+fabric"
 jadeNeoForge = "maven.modrinth:jade:26.0.8+neoforge"
@@ -24,7 +24,7 @@ lombok = "org.projectlombok:lombok:1.18.44"
 minecraft = "com.mojang:minecraft:26.1.2"
 modMenu = "com.terraformersmc:modmenu:18.0.0-alpha.8"
 neoForge = "net.neoforged:neoforge:26.1.2.1-beta"
-neoforgeFancymodloaderLoader = "net.neoforged.fancymodloader:loader:11.0.6"
+neoforgeFancymodloaderLoader = "net.neoforged.fancymodloader:loader:47.2.3"
 tolk = "com.davykager.tolk:Tolk:1.0.0"
 
 assertjCore = "org.assertj:assertj-core:3.27.7"
