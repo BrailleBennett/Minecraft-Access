@@ -1,6 +1,78 @@
 {
     "$schema": "https://docs.renovatebot.com/renovate-schema.json",
     "extends": [
-        "config:recommended"
+        "config:recommended",
+        "helpers:pinGitHubActionDigests"
+    ],
+    "packageRules": [
+        {
+            "description": "Git submodules configuration",
+            "matchManagers": [
+                "git-submodules"
+            ],
+            "reviewers": [
+                "BrailleBennett",
+                "TheSuperGamer20578"
+            ]
+        },
+        {
+            "description": "Weekly grouped dependencies (GitHub Actions, Nix, Gradle)",
+            "matchManagers": [
+                "github-actions",
+                "nix",
+                "gradle"
+            ],
+            "schedule": [
+                "before 4am on sunday"
+            ],
+            "groupName": "dependencies",
+            "reviewers": [
+                "BrailleBennett"
+            ]
+        },
+        {
+            "description": "Ensure pinned SHA hashes retain tag comments",
+            "matchManagers": [
+                "github-actions"
+            ],
+            "pinDigests": true
+        },
+        {
+            "description": "Ignore Minecraft dependency updates",
+            "matchPackageNames": [
+                "com.mojang:minecraft"
+            ],
+            "enabled": false
+        },
+        {
+            "description": "Enforce +fabric modifier for Jade Fabric",
+            "matchPackageNames": [
+                "maven.modrinth:jade"
+            ],
+            "matchCurrentValue": "/\\+fabric$/",
+            "allowedVersions": "/\\+fabric$/"
+        },
+        {
+            "description": "Enforce +neoforge modifier for Jade NeoForge",
+            "matchPackageNames": [
+                "maven.modrinth:jade"
+            ],
+            "matchCurrentValue": "/\\+neoforge$/",
+            "allowedVersions": "/\\+neoforge$/"
+        },
+        {
+            "description": "Preserve Fabric API build suffix metadata",
+            "matchPackageNames": [
+                "net.fabricmc.fabric-api:fabric-api"
+            ],
+            "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)\\+(?<build>.*)$"
+        },
+        {
+            "description": "Ignore net.neoforged.fancymodloader:loader in version range >= 47.0 < 48.0",
+            "matchPackageNames": [
+                "net.neoforged.fancymodloader:loader"
+            ],
+            "allowedVersions": "!/^47\\./"
+        }
     ]
 }
