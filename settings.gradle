@@ -79,7 +79,7 @@ dependencyResolutionManagement {
                 }
             }
             filter {
-                includeGroup 'net.fabricmc'
+                includeGroupAndSubgroups 'net.fabricmc'
             }
         }
 
@@ -103,6 +103,7 @@ dependencyResolutionManagement {
                 }
             }
             filter {
+                includeGroupAndSubgroups 'net.neoforged'
                 includeGroupAndSubgroups 'net.minecraftforge'
                 includeGroupAndSubgroups 'cpw.mods'
             }
