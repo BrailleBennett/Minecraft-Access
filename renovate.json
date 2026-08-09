@@ -4,6 +4,9 @@
         "config:recommended",
         "helpers:pinGitHubActionDigests"
     ],
+    "nix": {
+        "enabled": true
+    },
     "packageRules": [
         {
             "description": "Git submodules configuration",
@@ -20,7 +23,8 @@
             "matchManagers": [
                 "github-actions",
                 "nix",
-                "gradle"
+                "gradle",
+                "gradle-wrapper"
             ],
             "schedule": [
                 "before 4am on sunday"
