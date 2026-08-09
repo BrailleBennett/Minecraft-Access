@@ -1,3 +1,4 @@
+#bruh
 plugins {
     alias libs.plugins.mavenPublish
 }
