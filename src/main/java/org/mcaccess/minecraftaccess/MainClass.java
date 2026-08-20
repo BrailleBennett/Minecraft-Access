@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import net.blay09.mods.balm.Balm;
 import net.blay09.mods.balm.client.BalmClientRegistrars;
@@ -17,13 +16,11 @@ import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.resources.Identifier;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.config.Configurator;
-import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.UnmodifiableView;
 
 import org.mcaccess.minecraftaccess.api.AddonRegistry;
 import org.mcaccess.minecraftaccess.api.MinecraftAccessAddon;
 import org.mcaccess.minecraftaccess.features.AccessMenu;
-import org.mcaccess.minecraftaccess.features.AutoLibrarySetup;
 import org.mcaccess.minecraftaccess.features.BiomeIndicator;
 import org.mcaccess.minecraftaccess.features.CameraControls;
 import org.mcaccess.minecraftaccess.features.FallDetector;
@@ -39,15 +36,12 @@ import org.mcaccess.minecraftaccess.features.XPIndicator;
 import org.mcaccess.minecraftaccess.features.inventory_controls.InventoryControls;
 import org.mcaccess.minecraftaccess.features.point_of_interest.POIManager;
 import org.mcaccess.minecraftaccess.mixin.GameNarratorAccessor;
-import org.mcaccess.minecraftaccess.screen_reader.ScreenReaderController;
-import org.mcaccess.minecraftaccess.screen_reader.ScreenReaderInterface;
 import org.mcaccess.minecraftaccess.utils.events.ClientPlayingTick;
+import org.mcaccess.minecraftaccess.utils.system.ScreenReaderController;
 
 @Slf4j
 public final class MainClass {
     public static final String MOD_ID = "minecraft_access";
-    @Getter
-    private static ScreenReaderInterface screenReader = null;
     private static final Map<Class<?>, Map<Identifier, Object>> REGISTRY = new HashMap<>();
     private static boolean frozen = false;
 
@@ -82,8 +76,6 @@ public final class MainClass {
         String startupMessage = "Initializing Minecraft Access: version " + Balm.platform().getModInfo(MOD_ID).get().versionString();
         log.info(startupMessage);
 
-        new AutoLibrarySetup().initialize();
-
         ClientPlayingTick.AFTER.configureMapping((priority, callback) -> {
             ClientTickCallback.AFTER.register(priority, client -> {
                 if (client.player != null && client.level != null) {
@@ -113,8 +105,8 @@ public final class MainClass {
 
         // This executes when minecraft closes
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (getScreenReader() != null && getScreenReader().isInitialized()) {
-                getScreenReader().closeScreenReader();
+            if (ScreenReaderController.isInitialized()) {
+                ScreenReaderController.close();
             }
         }, "Shutdown-thread"));
 
@@ -123,10 +115,10 @@ public final class MainClass {
         }
         frozen = true;
         Config.init();
+        ScreenReaderController.initialize();
 
-        ScreenReaderController.refreshScreenReader();
-        if (getScreenReader() != null && getScreenReader().isInitialized()) {
-            getScreenReader().narrate(startupMessage, true);
+        if (ScreenReaderController.isInitialized()) {
+            ScreenReaderController.narrate(startupMessage, true);
         }
 
         registrars.registerModule(new AccessMenu());
@@ -173,18 +165,8 @@ public final class MainClass {
         }
     }
 
-    public static void setScreenReader(ScreenReaderInterface screenReader) {
-        MainClass.screenReader = screenReader;
-    }
-
     public static void narrate(String text, boolean interrupt) {
         Minecraft client = Minecraft.getInstance();
-
-        if (Strings.isEmpty(text) || !client.isWindowActive()) {
-            log.warn("The narration of string \"{}\" with interrupt={} was suppressed", text, interrupt);
-            return;
-        }
-
         if (client.options.narrator().get() != NarratorStatus.OFF) {
             ((GameNarratorAccessor) client.getNarrator()).invokeNarrateMessage(text, interrupt);
         }
