@@ -25,7 +25,8 @@ minecraft = "com.mojang:minecraft:26.2"
 modMenu = "com.terraformersmc:modmenu:20.0.1"
 neoForge = "net.neoforged:neoforge:26.2.0.59"
 neoforgeFancymodloaderLoader = "net.neoforged.fancymodloader:loader:11.0.17"
-tolk = "com.davykager.tolk:Tolk:1.0.0"
+prism = "org.mcaccess:prism:0.17.3"
+#tolk = "com.davykager.tolk:Tolk:1.0.0"
 
 assertjCore = "org.assertj:assertj-core:3.27.7"
 junitJupiter = { module = "org.junit.jupiter:junit-jupiter", version.ref = "junit" }
