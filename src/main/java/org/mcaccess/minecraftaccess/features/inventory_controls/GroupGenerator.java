@@ -117,25 +117,21 @@ public final class GroupGenerator {
             int index = ((SlotAccessor) s).getSlot();
 
             //<editor-fold desc="Group player inventory slot items">
-            switch (s.container) {
-                case Inventory _ when index >= 0 && index <= 8 -> {
-                    hotbarGroup.slotItems.add(new SlotItem(s));
-                    continue;
-                }
-                case Inventory _ when index >= 9 && index <= 35 -> {
-                    playerInventoryGroup.slotItems.add(new SlotItem(s));
-                    continue;
-                }
-                case Inventory _ when index >= 36 && index <= 39 -> {
-                    armourGroup.slotItems.add(new SlotItem(s));
-                    continue;
-                }
-                case Inventory _ when index == 40 -> {
-                    offHandGroup.slotItems.add(new SlotItem(s));
-                    continue;
-                }
-                default -> {
-                }
+            if (s.container instanceof Inventory && index >= 0 && index <= 8) {
+                hotbarGroup.slotItems.add(new SlotItem(s));
+                continue;
+            }
+            if (s.container instanceof Inventory && index >= 9 && index <= 35) {
+                playerInventoryGroup.slotItems.add(new SlotItem(s));
+                continue;
+            }
+            if (s.container instanceof Inventory && index >= 36 && index <= 39) {
+                armourGroup.slotItems.add(new SlotItem(s));
+                continue;
+            }
+            if (s.container instanceof Inventory && index == 40) {
+                offHandGroup.slotItems.add(new SlotItem(s));
+                continue;
             }
             //</editor-fold>
 
@@ -686,7 +682,7 @@ public final class GroupGenerator {
 
         RecipeBookComponent<?> recipeBookWidget = null;
         if (screen instanceof AbstractRecipeBookScreen<?> recipeBookScreen) {
-            recipeBookWidget = ((AbstractRecipeBookScreenAccessor) recipeBookScreen).getRecipeBookComponent();
+            recipeBookWidget = ((AbstractRecipeBookScreenAccessor) recipeBookScreen).minecraft_access$getRecipeBookComponent();
         }
         if (recipeBookWidget == null || !recipeBookWidget.isVisible()) {
             return foundGroups;

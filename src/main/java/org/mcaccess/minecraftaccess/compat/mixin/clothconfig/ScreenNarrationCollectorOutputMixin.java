@@ -1,5 +1,7 @@
 package org.mcaccess.minecraftaccess.compat.mixin.clothconfig;
 
+import java.util.stream.IntStream;
+
 import me.shedaniel.clothconfig2.gui.ClothConfigScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.narration.NarrationThunk;
@@ -21,12 +23,12 @@ abstract class ScreenNarrationCollectorOutputMixin {
     @Unique
     private static int whiteSpaceCount = 0;
 
-    @ModifyVariable(method = "add", at = @At("HEAD"), argsOnly = true, name = "contents")
+    @ModifyVariable(method = "add", at = @At("HEAD"), argsOnly = true)
     private NarrationThunk<?> makeSameOptionValuesBeingNarrated(NarrationThunk<?> contents) {
-        boolean clothScreenOpening = Minecraft.getInstance().gui.screen() instanceof ClothConfigScreen;
+        boolean clothScreenOpening = Minecraft.getInstance().screen instanceof ClothConfigScreen;
         boolean mightBeValueDepth = depth > 1;
         if (clothScreenOpening && mightBeValueDepth && ((NarrationThunkAccessor) contents).getContents() instanceof String content) {
-            String prefix = " ".repeat(whiteSpaceCount);
+            String prefix = IntStream.range(0, whiteSpaceCount).mapToObj(i -> " ").reduce("", String::concat);
             whiteSpaceCount = (whiteSpaceCount + 1) % 5;
             return NarrationThunk.from(content + prefix);
         }

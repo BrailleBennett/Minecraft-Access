@@ -15,11 +15,10 @@ import org.mcaccess.minecraftaccess.MainClass;
 abstract class BookViewScreenMixin {
     @Shadow
     private int currentPage;
-
     @Shadow
     private BookViewScreen.BookAccess bookAccess;
 
-    @Inject(method = "keyPressed", at = @At("HEAD"))
+    @Inject(at = @At("HEAD"), method = "keyPressed")
     private void repeatPageContents(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (event.key() == InputConstants.KEY_R) {
             MainClass.narrate(bookAccess.getPage(currentPage).getString(), true);

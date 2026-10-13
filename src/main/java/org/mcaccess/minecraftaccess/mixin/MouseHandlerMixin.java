@@ -10,7 +10,7 @@ import org.mcaccess.minecraftaccess.MainClass;
 
 @Mixin(MouseHandler.class)
 abstract class MouseHandlerMixin {
-    @Inject(method = "turnPlayer", at = @At("HEAD"), cancellable = true)
+    @Inject(at = @At("HEAD"), method = "turnPlayer", cancellable = true)
     private void lockCamera(CallbackInfo ci) {
         if (MainClass.poiManager.lockingHandler.isPlayerLocked()) {
             ci.cancel();

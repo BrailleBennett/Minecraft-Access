@@ -1,8 +1,6 @@
 package org.mcaccess.minecraftaccess.features;
 
 import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.blay09.mods.balm.client.platform.module.BalmClientModule;
@@ -26,7 +24,6 @@ import org.jetbrains.annotations.NotNull;
 import org.mcaccess.minecraftaccess.Config;
 import org.mcaccess.minecraftaccess.MainClass;
 import org.mcaccess.minecraftaccess.api.AccessMenuFunction;
-import org.mcaccess.minecraftaccess.api.AddonRegistry;
 import org.mcaccess.minecraftaccess.utils.KeyMappingCategories;
 
 public class AccessMenu implements BalmClientModule {
@@ -42,13 +39,12 @@ public class AccessMenu implements BalmClientModule {
         keyAccessMenu = Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "other.access_menu"))
                 .withDefault(InputBinding.key(InputConstants.KEY_F4))
                 .overrideCategory(KeyMappingCategories.OTHER)
-                .handleWorldInput(_ -> {
+                .handleWorldInput(event -> {
                     Minecraft client = Minecraft.getInstance();
-                    if (keyAccessMenu.getBinding().key().getValue() == InputConstants.KEY_F4
-                            && InputConstants.isKeyDown(InputConstants.KEY_F3)) {
+                    if (keyAccessMenu.getBinding().key().getValue() == InputConstants.KEY_F4 && InputConstants.isKeyDown(client.getWindow(), InputConstants.KEY_F3)) {
                         return false;
                     } else {
-                        client.gui.setScreen(new GUI());
+                        client.setScreen(new GUI());
                         return true;
                     }
                 })
@@ -59,7 +55,7 @@ public class AccessMenu implements BalmClientModule {
             Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "access_menu.shortcuts_bar/" + index))
                     .withDefault(InputBinding.key(InputConstants.KEY_0 + i, KeyModifiers.of(KeyModifier.ALT)))
                     .skipRegistration()
-                    .handleWorldInput(_ -> {
+                    .handleWorldInput(event -> {
                         AccessMenuFunction function = getShortcuts()[index];
                         if (function.enabled()) {
                             function.execute();
@@ -70,30 +66,17 @@ public class AccessMenu implements BalmClientModule {
         }
 
         for (Map.Entry<Identifier, AccessMenuFunction> function : MainClass.registry(AccessMenuFunction.class).entrySet()) {
-            ManagedKeyMapping.RegistrationBuilder mapping = Kuma.createKeyMapping(function.getKey())
+            Kuma.createKeyMapping(function.getKey())
                     .overrideName(identifier -> identifier.toLanguageKey("access_menu_function"))
                     .overrideCategory(KeyMappingCategories.ACCESS_MENU_FUNCTIONS)
-                    .handleWorldInput(_ -> {
+                    .handleWorldInput(event -> {
                         if (function.getValue().enabled()) {
                             function.getValue().execute();
                             return true;
                         }
                         return false;
-                    });
-            Optional.ofNullable(MainClass.registry(AddonRegistry.AccessMenuFunctionRegistration.DefaultKeybind.class).get(function.getKey()))
-                    .ifPresent(defaultKeybind -> {
-                        KeyModifiers modifiers = KeyModifiers.none();
-                        for (int modifier : defaultKeybind.modifiers) {
-                            switch (modifier) {
-                                case InputConstants.MOD_SHIFT -> modifiers.addModifier(KeyModifier.SHIFT);
-                                case InputConstants.MOD_CONTROL -> modifiers.addModifier(KeyModifier.CONTROL);
-                                case InputConstants.MOD_ALT -> modifiers.addModifier(KeyModifier.ALT);
-                                default -> modifiers.addCustomModifier(modifier);
-                            }
-                        }
-                        mapping.withDefault(InputBinding.key(defaultKeybind.keycode, modifiers));
-                    });
-            mapping.build();
+                    })
+                    .build();
         }
     }
 
@@ -135,7 +118,7 @@ public class AccessMenu implements BalmClientModule {
                         label.append(Component.literal(String.format(" [%d]", i)).withColor(0xbbbbbb));
                     }
                 }
-                Button button = Button.builder(label, _ -> {
+                Button button = Button.builder(label, b -> {
                     onClose();
                     function.execute();
                 }).width(Math.min(Button.BIG_WIDTH, width / 2 - 15)).build();
@@ -155,19 +138,14 @@ public class AccessMenu implements BalmClientModule {
                 onClose();
                 return true;
             }
-
-            if (event.modifiers() == 0) {
-                OptionalInt numericKey = InputConstants.getKey(event).getNumericKeyValue();
-                if (numericKey.isPresent()) {
-                    AccessMenuFunction function = getShortcuts()[numericKey.getAsInt()];
-                    if (function != null && function.enabled()) {
-                        onClose();
-                        function.execute();
-                        return true;
-                    }
+            if (event.getDigit() != -1) {
+                AccessMenuFunction function = getShortcuts()[event.getDigit()];
+                if (function.enabled()) {
+                    onClose();
+                    function.execute();
+                    return true;
                 }
             }
-
             return super.keyPressed(event);
         }
     }

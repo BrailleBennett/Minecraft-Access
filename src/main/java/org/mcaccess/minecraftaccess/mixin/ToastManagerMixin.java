@@ -19,7 +19,7 @@ import org.mcaccess.minecraftaccess.utils.NarrationUtils;
 
 @Mixin(ToastManager.class)
 abstract class ToastManagerMixin {
-    @Inject(method = "addToast", at = @At("TAIL"))
+    @Inject(at = @At("TAIL"), method = "addToast")
     private void narrateToast(Toast toast, CallbackInfo ci) {
         StringBuilder toastTextBuilder = new StringBuilder();
         toastTextBuilder.append(I18n.get("minecraft_access.toast.shown"))
@@ -28,15 +28,13 @@ abstract class ToastManagerMixin {
             case AdvancementToast advancementToast -> ((AdvancementToastAccessor) advancementToast).getAdvancement()
                     .value().display()
                     .ifPresent(display -> toastTextBuilder
-                            .append(display.type().getDisplayName().getString())
+                            .append(display.getType().getDisplayName().getString())
                             .append(' ')
-                            .append(display.title().getString()));
-            case RecipeToast _ -> toastTextBuilder.append(I18n.get("recipe.toast.title"))
+                            .append(display.getTitle().getString()));
+            case RecipeToast ignored -> toastTextBuilder.append(I18n.get("recipe.toast.title"))
                     .append(". ")
                     .append(I18n.get("recipe.toast.description"));
-            case SystemToast systemToast -> toastTextBuilder.append(((SystemToastAccessor) systemToast).getTitleLines().stream()
-                            .map(NarrationUtils::formattedCharSequenceToString)
-                            .collect(Collectors.joining(" ")))
+            case SystemToast systemToast -> toastTextBuilder.append(((SystemToastAccessor) systemToast).getTitle().getString())
                     .append(". ")
                     .append(((SystemToastAccessor) systemToast).getMessageLines().stream()
                             .map(NarrationUtils::formattedCharSequenceToString)

@@ -30,22 +30,20 @@ abstract class TextFieldHelperMixin {
     @Final
     @Shadow
     private Supplier<String> getMessageFn;
-
     @Shadow
     private int cursorPos;
-
     @Shadow
     private int selectionPos;
 
     @Shadow
-    protected abstract String getSelected(String text);
+    protected abstract String getSelected(String string);
 
-    @Inject(method = "setCursorToEnd()V", at = @At("TAIL"))
+    @Inject(at = @At("TAIL"), method = "setCursorToEnd()V")
     private void narrateTextOfSwitchedLine(CallbackInfo ci) {
         MainClass.narrate(getMessageFn.get(), true);
     }
 
-    @Inject(method = "keyPressed", at = @At("HEAD"))
+    @Inject(at = @At("HEAD"), method = "keyPressed")
     private void narrateCursorHoverOverText(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
         // is selecting, let the selecting text narrating method do the job instead
         if (Minecraft.getInstance().hasShiftDown()) {
@@ -96,15 +94,15 @@ abstract class TextFieldHelperMixin {
         return Util.offsetByCodepoints(getMessageFn.get(), cursorPos, offset);
     }
 
-    @Inject(method = "keyPressed", at = @At("RETURN"))
+    @Inject(at = @At("RETURN"), method = "keyPressed")
     private void narrateSelectedText(CallbackInfoReturnable<Boolean> cir) {
         String selectedText = getSelected(getMessageFn.get());
         MainClass.narrate(selectedText, true);
     }
 
-    @Inject(method = "removeCharsFromCursor", at = @At("HEAD"))
-    private void narrateErasedText(int count, CallbackInfo ci) {
-        int cursorPos = Util.offsetByCodepoints(getMessageFn.get(), this.cursorPos, count);
+    @Inject(at = @At("HEAD"), method = "removeCharsFromCursor")
+    private void narrateErasedText(int offset, CallbackInfo ci) {
+        int cursorPos = Util.offsetByCodepoints(getMessageFn.get(), this.cursorPos, offset);
         // select all text (ctrl+a) will not change the cursor position,
         // if we delete all text then, the erasedText will be a wrong value (one char ahead of cursor)
         // don't narrate under this condition

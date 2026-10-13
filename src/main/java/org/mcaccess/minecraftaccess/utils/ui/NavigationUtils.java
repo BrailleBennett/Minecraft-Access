@@ -18,7 +18,7 @@ public final class NavigationUtils {
      * @return true if Tab backward or Arrow up, otherwise false
      */
     public static boolean isDirectionBackward(FocusNavigationEvent event) {
-        if (event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection direction, ScreenRectangle _)) {
+        if (event instanceof FocusNavigationEvent.ArrowNavigation(ScreenDirection direction, ScreenRectangle ignored)) {
             return direction == ScreenDirection.UP;
         } else if (event instanceof FocusNavigationEvent.TabNavigation(boolean forward)) {
             return !forward;
@@ -28,7 +28,7 @@ public final class NavigationUtils {
 
     /**
      * Recursively find the focus path.
-     * Ignoring focusable children and returning early with an incomplete path may cause unexpected navigation behavior.
+     * Ignoring focusable children and return early with an incomplete path may cause unexpected navigation behaviour.
      *
      * @param root  from input component
      * @param event original event

@@ -45,7 +45,7 @@ public class POIEntities implements BalmClientModule {
 
     private final POIGroup<Entity> otherEntitiesGroup = new POIGroup<>(
             "minecraft_access.point_of_interest.group.otherEntities",
-            _ -> true
+            entity -> true
     );
 
     @SuppressWarnings("unchecked")
@@ -67,7 +67,7 @@ public class POIEntities implements BalmClientModule {
     @Override
     public void initialize() {
         ClientPlayingTick.AFTER.register(this::tick);
-        ClientLifecycleCallback.ConnectedToServer.EVENT.register(_ -> {
+        ClientLifecycleCallback.ConnectedToServer.EVENT.register(client -> {
             markedEntity = null;
             lastScanResults = new ArrayList<>();
         });
@@ -86,7 +86,7 @@ public class POIEntities implements BalmClientModule {
         if (!CONFIG.enabled) return;
         if (!interval.isReady()) return;
 
-        if (client.gui.screen() != null) return; //Prevent running if any screen is opened
+        if (client.screen != null) return; //Prevent running if any screen is opened
 
         log.trace("POIEntities started");
         scanEntitiesAroundPlayer();
@@ -121,7 +121,7 @@ public class POIEntities implements BalmClientModule {
 
     private void playerSoundAtFoundPOI(boolean isMarking) {
         if (CONFIG.volume == 0.0f) return;
-        Function<Entity, Vec3> mapper = e -> Vec3.atCenterOf(e.blockPosition());
+        Function<Entity, Vec3> mapper = e -> e.blockPosition().getCenter();
         if (isMarking && Config.getInstance().poi.marking.suppressOtherWhenEnabled) {
             markedGroup.playSoundForGroupItems(mapper, CONFIG.volume);
         } else if (CONFIG.playSound) {

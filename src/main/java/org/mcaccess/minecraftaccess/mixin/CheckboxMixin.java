@@ -25,11 +25,11 @@ abstract class CheckboxMixin extends AbstractWidget {
      */
     @Override
     @Overwrite
-    public void updateWidgetNarration(NarrationElementOutput output) {
+    public void updateWidgetNarration(NarrationElementOutput builder) {
         if (selected) {
-            output.add(NarratedElementType.TITLE, Component.translatable("minecraft_access.gui.checkbox_checked", getMessage()));
+            builder.add(NarratedElementType.TITLE, Component.translatable("minecraft_access.gui.checkbox_checked", getMessage()));
         } else {
-            output.add(NarratedElementType.TITLE, Component.translatable("minecraft_access.gui.checkbox_unchecked", getMessage()));
+            builder.add(NarratedElementType.TITLE, Component.translatable("minecraft_access.gui.checkbox_unchecked", getMessage()));
         }
     }
 }

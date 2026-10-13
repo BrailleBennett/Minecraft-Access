@@ -16,11 +16,11 @@ import org.mcaccess.minecraftaccess.MainClass;
 @Mixin(NowPlayingToast.class)
 abstract class NowPlayingToastMixin {
     @Shadow
-    private static Component getNowPlayingString(@Nullable String currentSongKey) {
+    private static Component getNowPlayingString(@Nullable String string) {
         throw new AssertionError();
     }
 
-    @Inject(method = "showToast", at = @At("TAIL"))
+    @Inject(at = @At("TAIL"), method = "showToast")
     private void narrateSong(CallbackInfo ci) {
         String toastTextBuilder = I18n.get("minecraft_access.toast.shown")
                 + I18n.get("minecraft_access.other.words_connection")

@@ -28,13 +28,10 @@ import org.mcaccess.minecraftaccess.MainClass;
 abstract class EditBoxMixin extends AbstractWidget {
     @Shadow
     private String value;
-
     @Shadow
     private int cursorPos;
-
     @Shadow
     private int highlightPos;
-
     @Shadow
     private @Nullable String suggestion;
 
@@ -47,10 +44,10 @@ abstract class EditBoxMixin extends AbstractWidget {
     public abstract boolean canConsumeInput();
 
     @Shadow
-    public abstract int getWordPosition(int dir);
+    public abstract int getWordPosition(int wordOffset);
 
     @Shadow
-    protected abstract int getCursorPos(int dir);
+    protected abstract int getCursorPos(int offset);
 
     @Shadow
     public abstract String getHighlighted();
@@ -66,7 +63,7 @@ abstract class EditBoxMixin extends AbstractWidget {
      * Prevents any character input if alt is held down.
      * This logic is for "alt + num key to repeat chat message" function in {@link ChatScreenMixin}
      */
-    @Inject(method = "charTyped", at = @At("HEAD"), cancellable = true)
+    @Inject(at = @At("HEAD"), method = "charTyped", cancellable = true)
     private void charTyped(CallbackInfoReturnable<Boolean> cir) {
         if (!Minecraft.getInstance().hasAltDown()) return;
 
@@ -74,7 +71,7 @@ abstract class EditBoxMixin extends AbstractWidget {
         cir.cancel();
     }
 
-    @Inject(method = "keyPressed", at = @At("HEAD"))
+    @Inject(at = @At("HEAD"), method = "keyPressed")
     private void narrateCursorHoverOverText(KeyEvent event, CallbackInfoReturnable<Boolean> cir) {
         if (!canConsumeInput()) {
             return;
@@ -116,7 +113,7 @@ abstract class EditBoxMixin extends AbstractWidget {
         }
     }
 
-    @Inject(method = "keyPressed", at = @At("RETURN"))
+    @Inject(at = @At("RETURN"), method = "keyPressed")
     private void narrateSelectedText(CallbackInfoReturnable<Boolean> cir) {
         if (!canConsumeInput()) {
             return;
@@ -127,9 +124,9 @@ abstract class EditBoxMixin extends AbstractWidget {
         }
     }
 
-    @Inject(method = "deleteChars", at = @At("HEAD"))
-    private void narrateErasedText(int dir, CallbackInfo ci) {
-        int cursorPos = getCursorPos(dir);
+    @Inject(at = @At("HEAD"), method = "deleteChars")
+    private void narrateErasedText(int characterOffset, CallbackInfo ci) {
+        int cursorPos = getCursorPos(characterOffset);
         // select all text (ctrl+a) will not change the cursor position,
         // if we delete all text then, the erasedText will be a wrong value (one char ahead of cursor)
         // don't narrate under this condition

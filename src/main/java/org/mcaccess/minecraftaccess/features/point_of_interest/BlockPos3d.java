@@ -20,11 +20,11 @@ public class BlockPos3d extends BlockPos {
 
     public BlockPos3d(BlockPos position) {
         super(position.getX(), position.getY(), position.getZ());
-        accuratePosition = Vec3.atCenterOf(position);
+        accuratePosition = position.getCenter();
     }
 
     public BlockPos3d(BlockPos position, Vec3 accuratePosition) {
-        super(position.getX(), position.getY(), position.getZ());
+        super(position);
         this.accuratePosition = accuratePosition;
     }
 

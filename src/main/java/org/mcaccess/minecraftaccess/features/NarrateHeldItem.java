@@ -11,19 +11,13 @@ import net.blay09.mods.kuma.api.KeyModifier;
 import net.blay09.mods.kuma.api.KeyModifiers;
 import net.blay09.mods.kuma.api.Kuma;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.LightBlock;
-import net.minecraft.world.level.block.TestBlock;
-import net.minecraft.world.level.block.state.properties.TestBlockMode;
-import org.apache.commons.lang3.math.Fraction;
 import org.jetbrains.annotations.NotNull;
 
 import org.mcaccess.minecraftaccess.Config;
@@ -48,13 +42,7 @@ public class NarrateHeldItem implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "other.narrate_held_item/mainhand"))
                 .withDefault(InputBinding.key(InputConstants.KEY_GRAVE))
                 .overrideCategory(KeyMappingCategories.OTHER)
-                .handleScreenInput(event -> {
-                    if (!(event.screen() instanceof AbstractContainerScreen)) return false;
-                    MainClass.narrate(I18n.get("minecraft_access.inventory_controls.dragging",
-                            getItemName(Minecraft.getInstance().player.containerMenu.getCarried(), true)), false);
-                    return true;
-                })
-                .handleWorldInput(_ -> {
+                .handleWorldInput(event -> {
                     narrateHand(false);
                     return true;
                 })
@@ -63,7 +51,7 @@ public class NarrateHeldItem implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "other.narrate_held_item/offhand"))
                 .withDefault(InputBinding.key(InputConstants.KEY_GRAVE, KeyModifiers.of(KeyModifier.ALT)))
                 .overrideCategory(KeyMappingCategories.OTHER)
-                .handleWorldInput(_ -> {
+                .handleWorldInput(event -> {
                     narrateHand(true);
                     return true;
                 })
@@ -75,16 +63,18 @@ public class NarrateHeldItem implements BalmClientModule {
 
         ItemStack currentItemStack = player.getMainHandItem();
         int selectedSlot = player.getInventory().getSelectedSlot();
-        String baseItemName = getItemName(currentItemStack, false);
+        String baseItemName = getItemName(currentItemStack);
         int itemCount = currentItemStack.getCount();
+
+        String itemNameWithCount = (currentItemStack.getCount() != 1 && !currentItemStack.isEmpty()) ? itemCount + " " + baseItemName : baseItemName;
 
         boolean nameChanged = !Objects.equals(baseItemName, previousItemName.value);
         boolean countChanged = !Objects.equals(itemCount, previousItemCount.value);
         boolean slotChanged = !Objects.equals(selectedSlot, previousSelectedSlot.value);
 
         if (nameChanged || slotChanged) {
-            MainClass.narrate(I18n.get("minecraft_access.other.selected", getItemName(currentItemStack, true)), true);
-        } else if (Config.getInstance().features.narrateHeldItemsCountWhenChanged && countChanged) {
+            MainClass.narrate(I18n.get("minecraft_access.other.selected", itemNameWithCount), true);
+        } else if (countChanged && Config.getInstance().features.narrateHeldItemsCountWhenChanged) {
             MainClass.narrate(String.valueOf(itemCount), true);
         }
 
@@ -93,7 +83,7 @@ public class NarrateHeldItem implements BalmClientModule {
         previousSelectedSlot.value = selectedSlot;
     }
 
-    public static String getItemName(ItemStack itemStack, boolean addCount) {
+    private String getItemName(ItemStack itemStack) {
         if (itemStack.isEmpty()) {
             return I18n.get("minecraft_access.inventory_controls.empty_slot", "");
         }
@@ -105,35 +95,29 @@ public class NarrateHeldItem implements BalmClientModule {
                 .flatMap(jukeboxPlayable -> jukeboxPlayable.song().unwrapKey())
                 .ifPresent(discNumber -> itemName.append(' ').append(I18n.get("jukebox_song.minecraft." + discNumber.identifier().getPath())));
 
-        Optional.ofNullable(itemStack.get(DataComponents.BLOCK_STATE))
-                .map(blockState -> blockState.get(LightBlock.LEVEL))
-                .ifPresent(level -> itemName.append(' ').append(level));
-
-        if (itemStack.is(Items.TEST_BLOCK)) {
-            TestBlockMode mode = Optional.ofNullable(itemStack.get(DataComponents.BLOCK_STATE))
-                    .map(blockState -> blockState.get(TestBlock.MODE))
-                    .orElse(TestBlockMode.START);
-            itemName.append(' ').append(mode.getDisplayName().getString());
-        }
-
-        if (itemStack.has(DataComponents.BUNDLE_CONTENTS)) {
-            itemStack.get(DataComponents.BUNDLE_CONTENTS).weight().result().ifPresent(fraction ->
-                    itemName.append(' ')
-                            .append(fraction.multiplyBy(Fraction.getFraction(64, 1)).getNumerator())
-                            .append("/64"));
-        }
-
-        int heldItemCount = itemStack.getCount();
-        return (addCount && heldItemCount != 1) ? heldItemCount + " " + itemName : itemName.toString();
+        return itemName.toString();
     }
 
     private void narrateHand(boolean hasAltDown) {
-        LocalPlayer player = Minecraft.getInstance().player;
-        assert player != null;
-        if (player.isSpectator()) return;
+        if (Minecraft.getInstance().player.isSpectator()) return;
 
-        String hand = I18n.get(hasAltDown ? "minecraft_access.other.offhand" : "options.mainHand");
-        String heldItemName = getItemName(hasAltDown ? player.getOffhandItem() : player.getMainHandItem(), true);
+        LocalPlayer player = Minecraft.getInstance().player;
+        String hand;
+        ItemStack heldItem;
+
+        if (!hasAltDown) {
+            hand = I18n.get("options.mainHand");
+            assert player != null;
+            heldItem = player.getMainHandItem();
+        } else {
+            hand = I18n.get("minecraft_access.other.offhand");
+            assert player != null;
+            heldItem = player.getOffhandItem();
+        }
+
+        String heldItemName = getItemName(heldItem);
+        int heldItemCount = heldItem.getCount();
+        heldItemName = (heldItemCount != 1 && !heldItem.isEmpty()) ? heldItemCount + " " + heldItemName : heldItemName;
 
         MainClass.narrate("%s: %s".formatted(hand, heldItemName), false);
     }

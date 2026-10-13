@@ -61,7 +61,7 @@ public final class Config implements ConfigData {
 
     static void init() {
         ConfigExtension.apply(AutoConfigClient.getGuiRegistry(Config.class));
-        AutoConfig.register(Config.class, ConfigExtension::serializer);
+        AutoConfig.register(Config.class, ConfigExtension::serialiser);
         instance = AutoConfig.getConfigHolder(Config.class).get();
     }
 

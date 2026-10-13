@@ -37,7 +37,9 @@ class RegistryReorderable extends BaseEntry<Identifier[], Button> {
 
     @Override
     protected Button initWidget() {
-        return Button.builder(Component.empty(), _ -> Minecraft.getInstance().gui.setScreen(new SelectionScreen(Minecraft.getInstance().gui.screen()))).build();
+        return Button.builder(Component.empty(), b -> {
+            Minecraft.getInstance().setScreen(new SelectionScreen(Minecraft.getInstance().screen));
+        }).build();
     }
 
     @Override
@@ -65,8 +67,8 @@ class RegistryReorderable extends BaseEntry<Identifier[], Button> {
             availableList = addRenderableWidget(new SelectionList(false));
             selectedList = addRenderableWidget(new SelectionList(true));
             LinearLayout footer = layout.addToFooter(LinearLayout.horizontal().spacing(8));
-            footer.addChild(Button.builder(Component.translatable("gui.cancel"), _ -> onClose()).build());
-            footer.addChild(Button.builder(Component.translatable("gui.done"), _ -> {
+            footer.addChild(Button.builder(Component.translatable("gui.cancel"), b -> onClose()).build());
+            footer.addChild(Button.builder(Component.translatable("gui.done"), b -> {
                 value = selection.toArray(Identifier[]::new);
                 onClose();
             }).build());
@@ -83,7 +85,7 @@ class RegistryReorderable extends BaseEntry<Identifier[], Button> {
 
         @Override
         public void onClose() {
-            Minecraft.getInstance().gui.setScreen(previous);
+            Minecraft.getInstance().screen = previous;
         }
 
         @Override

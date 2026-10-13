@@ -65,14 +65,14 @@ public class MouseSimulation implements BalmClientModule {
                 .withDefault(InputBinding.key(InputConstants.KEY_SEMICOLON))
                 .enableKeyRepeat()
                 .overrideCategory(KeyMappingCategories.MOUSE_SIMULATION)
-                .handleWorldInput(_ -> {
+                .handleWorldInput(event -> {
                     if (canScroll(lastScrollUpTime)) {
                         MouseUtils.Wheel.UP.scroll();
                         lastScrollUpTime = System.currentTimeMillis();
                     }
                     return true;
                 })
-                .handleScreenInput(_ -> {
+                .handleScreenInput(event -> {
                     if (canScroll(lastScrollUpTime)) {
                         MouseUtils.Wheel.UP.scroll();
                         lastScrollUpTime = System.currentTimeMillis();
@@ -85,14 +85,14 @@ public class MouseSimulation implements BalmClientModule {
                 .withDefault(InputBinding.key(InputConstants.KEY_APOSTROPHE))
                 .enableKeyRepeat()
                 .overrideCategory(KeyMappingCategories.MOUSE_SIMULATION)
-                .handleWorldInput(_ -> {
+                .handleWorldInput(event -> {
                     if (canScroll(lastScrollDownTime)) {
                         MouseUtils.Wheel.DOWN.scroll();
                         lastScrollDownTime = System.currentTimeMillis();
                     }
                     return true;
                 })
-                .handleScreenInput(_ -> {
+                .handleScreenInput(event -> {
                     if (canScroll(lastScrollDownTime)) {
                         MouseUtils.Wheel.DOWN.scroll();
                         lastScrollDownTime = System.currentTimeMillis();

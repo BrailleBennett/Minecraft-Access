@@ -18,12 +18,12 @@ abstract class GameNarratorMixin {
         return new NarratorDummy();
     }
 
-    @Inject(method = "narrateMessage", at = @At("HEAD"), cancellable = true)
-    private void narrateMessage(String message, boolean interrupt, CallbackInfo ci) {
+    @Inject(at = @At("HEAD"), method = "narrateMessage", cancellable = true)
+    private void narrateMessage(String text, boolean interrupt, CallbackInfo callbackInfo) {
         if (MainClass.getScreenReader() == null || !MainClass.getScreenReader().isInitialized()) {
             return;
         }
-        MainClass.getScreenReader().narrate(message, interrupt);
-        ci.cancel();
+        MainClass.getScreenReader().narrate(text, interrupt);
+        callbackInfo.cancel();
     }
 }

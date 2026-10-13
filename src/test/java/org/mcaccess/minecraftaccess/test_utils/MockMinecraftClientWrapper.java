@@ -14,6 +14,7 @@ import static org.mockito.Mockito.mock;
  * but with this additional layer of wrap, we can easily write and reuse our own custom logic.
  */
 public class MockMinecraftClientWrapper {
+
     private final Minecraft mockitoClient;
 
     public MockMinecraftClientWrapper() {
@@ -21,9 +22,9 @@ public class MockMinecraftClientWrapper {
 
         lenient().doAnswer((i) -> {
             // assign screen param to desired field to simulate real behavior
-            mockitoClient.gui.setScreen(i.getArgument(0));
+            mockitoClient.screen = i.getArgument(0);
             return null;
-        }).when(mockitoClient).gui.setScreen(any());
+        }).when(mockitoClient).setScreen(any());
     }
 
     public Minecraft mockito() {
@@ -33,18 +34,18 @@ public class MockMinecraftClientWrapper {
     public void setScreen(Class<? extends Screen> screenClass) {
         Screen screen = mock(screenClass);
         lenient().doAnswer((ignored) -> {
-            mockitoClient.gui.setScreen(null);
+            mockitoClient.screen = null;
             return null;
         }).when(screen).onClose();
 
-        mockitoClient.gui.setScreen(screen);
+        mockitoClient.screen = screen;
     }
 
     public void verifyOpeningMenuOf(Class<? extends Screen> screenClass) {
-        assertThat(mockitoClient.gui.screen()).as("the menu should be opened").isOfAnyClassIn(screenClass);
+        assertThat(mockitoClient.screen).as("the menu should be opened").isOfAnyClassIn(screenClass);
     }
 
     public void verifyClosingMenu() {
-        assertThat(mockitoClient.gui.screen()).as("the menu should be closed").isNull();
+        assertThat(mockitoClient.screen).as("the menu should be closed").isNull();
     }
 }

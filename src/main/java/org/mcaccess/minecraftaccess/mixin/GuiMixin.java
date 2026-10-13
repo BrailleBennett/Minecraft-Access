@@ -3,7 +3,7 @@ package org.mcaccess.minecraftaccess.mixin;
 import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.client.gui.Hud;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.network.chat.Component;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,8 +19,8 @@ import org.mcaccess.minecraftaccess.MainClass;
  * Narrates the currently selected hotbar item's name and the action bar.
  * Narrates titles
  */
-@Mixin(Hud.class)
-abstract class HudMixin {
+@Mixin(Gui.class)
+abstract class GuiMixin {
     @Shadow
     private Component title;
 
@@ -30,11 +30,11 @@ abstract class HudMixin {
     @Unique
     private String previousActionBarContent = "";
 
-    @Inject(method = "setOverlayMessage(Lnet/minecraft/network/chat/Component;Z)V", at = @At("HEAD"))
-    private void narrateActionbar(Component string, boolean animate, CallbackInfo ci) {
+    @Inject(at = @At("HEAD"), method = "setOverlayMessage(Lnet/minecraft/network/chat/Component;Z)V")
+    private void narrateActionbar(Component message, boolean tinted, CallbackInfo ci) {
         Config config = Config.getInstance();
         if (config.features.actionBarEnabled) {
-            String msg = string.getString();
+            String msg = message.getString();
             boolean contentChanged = !previousActionBarContent.equals(msg);
             if (contentChanged) {
                 if (config.features.onlyNarrateActionBarUpdates) {

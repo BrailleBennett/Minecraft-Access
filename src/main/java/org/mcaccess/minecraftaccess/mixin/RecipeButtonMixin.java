@@ -17,20 +17,23 @@ import org.mcaccess.minecraftaccess.utils.system.MouseUtils;
 
 @Mixin(RecipeButton.class)
 abstract class RecipeButtonMixin {
-    @Unique
-    private final Interval interval = Interval.ms(5000);
     @Shadow
     private RecipeCollection collection;
+
     @Unique
     private boolean vibratingFlag = false;
+
     @Unique
     private String previousItemName = "";
+
+    @Unique
+    private final Interval interval = Interval.ms(5000);
 
     @Shadow
     public abstract ItemStack getDisplayStack();
 
-    @Inject(method = "updateWidgetNarration", at = @At("HEAD"), cancellable = true)
-    private void updateWidgetNarrationsMixin(CallbackInfo ci) {
+    @Inject(at = @At("HEAD"), method = "updateWidgetNarration", cancellable = true)
+    private void updateWidgetNarrationsMixin(CallbackInfo callbackInfo) {
         ItemStack itemStack = getDisplayStack();
         String itemName = itemStack.getHoverName().getString();
 
@@ -49,7 +52,7 @@ abstract class RecipeButtonMixin {
         }
 
         shakeTheMouse();
-        ci.cancel();
+        callbackInfo.cancel();
     }
 
     /**

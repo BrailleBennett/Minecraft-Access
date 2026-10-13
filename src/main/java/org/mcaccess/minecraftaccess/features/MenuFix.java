@@ -83,10 +83,10 @@ public final class MenuFix implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "other.menu_fix"))
                 .withDefault(InputBinding.key(InputConstants.KEY_R, KeyModifiers.of(KeyModifier.ALT)))
                 .overrideCategory(KeyMappingCategories.OTHER)
-                .handleScreenInput(_ -> {
+                .handleScreenInput(event -> {
                     Minecraft client = Minecraft.getInstance();
-                    if (MENUS_NEED_FIX.contains(client.gui.screen().getClass())) {
-                        log.debug("Performing menu fix on {}", client.gui.screen().getTitle().getString());
+                    if (MENUS_NEED_FIX.contains(client.screen.getClass())) {
+                        log.debug("Performing menu fix on {}", client.screen.getTitle().getString());
                         moveMouseCursor();
                     }
                     return true;
@@ -95,18 +95,18 @@ public final class MenuFix implements BalmClientModule {
     }
 
     private void tick(Minecraft client) {
-        if (client.gui.screen() == previous) {
+        if (client.screen == previous) {
             return;
         }
 
-        previous = client.gui.screen();
+        previous = client.screen;
 
-        if (!Config.getInstance().menuFixEnabled || client.gui.screen() == null) {
+        if (!Config.getInstance().menuFixEnabled || client.screen == null) {
             return;
         }
 
-        if (MENUS_NEED_FIX.contains(client.gui.screen().getClass())) {
-            log.debug("Performing menu fix on {}", client.gui.screen().getTitle().getString());
+        if (MENUS_NEED_FIX.contains(client.screen.getClass())) {
+            log.debug("Performing menu fix on {}", client.screen.getTitle().getString());
             moveMouseCursor();
         }
     }

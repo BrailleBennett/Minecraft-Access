@@ -1,9 +1,6 @@
 {
     "required": true,
     "minVersion": "0.8",
-    "mixinextras": {
-        "minVersion": "0.5.4"
-    },
     "package": "org.mcaccess.minecraftaccess.mixin",
     "compatibilityLevel": "JAVA_25",
     "client": [
@@ -35,7 +32,8 @@
         "GameNarratorAccessor",
         "GameNarratorMixin",
         "GuiGraphicsExtractorMixin",
-        "HudMixin",
+        "GuiMixin",
+        "I18NAccessor",
         "I18nMixin",
         "InputMixin",
         "ItemStackMixin",
@@ -43,6 +41,7 @@
         "LoomScreenAccessor",
         "MerchantScreenAccessor",
         "MinecraftMixin",
+        "MouseHandlerAccessor",
         "MouseHandlerMixin",
         "NarrationElementOutputMixin",
         "NarrationThunkAccessor",

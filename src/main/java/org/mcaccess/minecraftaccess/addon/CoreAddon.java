@@ -1,6 +1,5 @@
 package org.mcaccess.minecraftaccess.addon;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import net.blay09.mods.balm.Balm;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tags.FluidTags;
@@ -84,8 +83,7 @@ public class CoreAddon implements MinecraftAccessAddon {
                 () -> Config.getInstance().playerWarnings.durabilityWarnings.enableWornArmor
         ));
 
-        registry.register("narrate_target", new NarrateTarget())
-                .withDefaultKeybind(InputConstants.KEY_B);
+        registry.register("narrate_target", new NarrateTarget());
         registry.register("target_position", new TargetPosition());
         registry.register("light_level", new LightLevel());
         registry.register("find_water", new FluidDetector(FluidTags.WATER));

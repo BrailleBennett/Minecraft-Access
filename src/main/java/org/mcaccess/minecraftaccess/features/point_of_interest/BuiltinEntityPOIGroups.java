@@ -2,7 +2,6 @@ package org.mcaccess.minecraftaccess.features.point_of_interest;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -20,7 +19,7 @@ import net.minecraft.world.entity.boss.enderdragon.EnderDragon;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.ElderGuardian;
-import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
@@ -31,13 +30,12 @@ public enum BuiltinEntityPOIGroups {
             "minecraft_access.point_of_interest.group.hostile",
             new POIGroup.Sound(SoundEvents.NOTE_BLOCK_BELL.value(), 2.0f),
             entity -> {
-                if (entity instanceof Enemy) return true;
+                if (entity instanceof Monster) return true;
                 if (entity instanceof NeutralMob mob) {
                     LocalPlayer player = Minecraft.getInstance().player;
                     assert player != null;
-                    boolean mobAttackedPlayer = Objects.equals(mob, player.getLastHurtByMob());
-                    boolean mobAngryAtPlayer = mob.getPersistentAngerTarget() != null
-                            && Objects.equals(player.getUUID(), mob.getPersistentAngerTarget().getUUID());
+                    boolean mobAttackedPlayer = mob.equals(player.getLastHurtByMob());
+                    boolean mobAngryAtPlayer = player.getUUID().equals(mob.getPersistentAngerTarget());
                     return mobAttackedPlayer || mobAngryAtPlayer;
                 }
                 return false;
@@ -46,11 +44,7 @@ public enum BuiltinEntityPOIGroups {
     YOUR_PETS(new POIGroup<>(
             "minecraft_access.point_of_interest.group.your_pet",
             new POIGroup.Sound(SoundEvents.NOTE_BLOCK_FLUTE.value(), 1.0f),
-            entity -> {
-                if (!(entity instanceof TamableAnimal pet)) return false;
-                assert Minecraft.getInstance().player != null;
-                return pet.isOwnedBy(Minecraft.getInstance().player);
-            }
+            entity -> entity instanceof TamableAnimal pet && pet.isOwnedBy(Minecraft.getInstance().player)
     )),
     OTHER_PETS(new POIGroup<>(
             "minecraft_access.point_of_interest.group.other_pet",

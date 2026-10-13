@@ -22,17 +22,17 @@ abstract class I18nMixin {
      * when translation key has "{}".
      */
     @SuppressWarnings("unchecked")
-    @Inject(method = "get", at = @At("HEAD"), cancellable = true)
-    private static void useNamedFormatter(String id, Object[] args, CallbackInfoReturnable<String> cir) {
+    @Inject(at = @At("HEAD"), method = "get", cancellable = true)
+    private static void useNamedFormatter(String key, Object[] args, CallbackInfoReturnable<String> cir) {
         if (args.length == 1 && args[0] instanceof Map) {
             Map<String, Object> params = (Map<String, Object>) args[0];
 
-            String pattern = Language.getInstance().getOrDefault(id);
+            String pattern = I18NAccessor.getLanguage().getOrDefault(key);
             String result = NamedFormatter.format(pattern, params);
 
             // fallback to English
             if (result.startsWith("minecraft_access")) {
-                pattern = getEnglishI18Nof(id);
+                pattern = getEnglishI18Nof(key);
                 result = NamedFormatter.format(pattern, params);
             }
 
