@@ -5,6 +5,7 @@
 [versions]
 balm = "26.3.0.3"
 clothConfig = "26.3.159"
+jackson = "2.19.2"
 junit = "6.1.3"
 mockito = "5.24.0"
 
@@ -19,6 +20,8 @@ fabricApi = "net.fabricmc.fabric-api:fabric-api:0.162.0+26.3"
 fabricLoader = "net.fabricmc:fabric-loader:0.19.5"
 jadeFabric = "maven.modrinth:jade:26.3.5+fabric"
 jadeNeoForge = "maven.modrinth:jade:26.3.5+neoforge"
+jacksonDataformatYaml = { module = "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml", version.ref = "jackson" }
+jacksonDatabind = { module = "com.fasterxml.jackson.core:jackson-databind", version.ref = "jackson" }
 jsr305 = "com.google.code.findbugs:jsr305:3.0.2"
 lombok = "org.projectlombok:lombok:1.18.48"
 minecraft = "com.mojang:minecraft:26.3"

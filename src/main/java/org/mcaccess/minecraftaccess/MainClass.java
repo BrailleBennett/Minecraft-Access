@@ -164,13 +164,13 @@ public final class MainClass {
      * Dynamically changing log level based on debug mode config.
      */
     private static void changeLogLevelBaseOnDebugConfig() {
-        if (Config.getInstance().debugMode || Balm.platform().isDevelopmentEnvironment()) {
-            if (!log.isDebugEnabled()) {
-                Configurator.setLevel("org.mcaccess.minecraftaccess", Level.DEBUG);
-            }
-        } else if (log.isDebugEnabled()) {
-            Configurator.setLevel("org.mcaccess.minecraftaccess", Level.INFO);
-        }
+//        if (Config.getInstance().debugMode || Balm.platform().isDevelopmentEnvironment()) {
+//            if (!log.isDebugEnabled()) {
+//                Configurator.setLevel("org.mcaccess.minecraftaccess", Level.DEBUG);
+//            }
+//        } else if (log.isDebugEnabled()) {
+//            Configurator.setLevel("org.mcaccess.minecraftaccess", Level.INFO);
+//        }
     }
 
     public static void setScreenReader(ScreenReaderInterface screenReader) {

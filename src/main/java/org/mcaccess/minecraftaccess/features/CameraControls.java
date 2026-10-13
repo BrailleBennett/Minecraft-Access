@@ -41,6 +41,7 @@ public class CameraControls implements BalmClientModule {
                 .withDefault(InputBinding.key(InputConstants.KEY_H))
                 .overrideCategory(KeyMappingCategories.CAMERA_CONTROLS)
                 .handleWorldInput(_ -> {
+                    log.trace("testingskep");
                     MainClass.narrate(I18n.get("minecraft_access.other.facing_direction", PlayerPositionUtils.getHorizontalFacingDirectionInWords()), true);
                     return true;
                 })

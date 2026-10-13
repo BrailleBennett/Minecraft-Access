@@ -71,6 +71,8 @@ dependencies {
     testImplementation libs.mockitoCore
     testImplementation libs.mockitoJunitJupiter
 
+    testRuntimeOnly libs.jacksonDataformatYaml
+
     testCompileOnly libs.jsr305
 
     testCompileOnly libs.lombok
