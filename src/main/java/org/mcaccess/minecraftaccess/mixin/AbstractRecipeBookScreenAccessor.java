@@ -7,6 +7,6 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(AbstractRecipeBookScreen.class)
 public interface AbstractRecipeBookScreenAccessor {
-    @Accessor("recipeBookComponent")
-    RecipeBookComponent<?> minecraft_access$getRecipeBookComponent();
+    @Accessor
+    RecipeBookComponent<?> getRecipeBookComponent();
 }
