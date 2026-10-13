@@ -15,8 +15,6 @@ import net.minecraft.client.NarratorStatus;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.multiplayer.ServerList;
 import net.minecraft.resources.Identifier;
-import org.apache.logging.log4j.Level;
-import org.apache.logging.log4j.core.config.Configurator;
 import org.apache.logging.log4j.util.Strings;
 import org.jetbrains.annotations.UnmodifiableView;
 
@@ -157,20 +155,6 @@ public final class MainClass {
      * @param client The current minecraft client object
      */
     public static void clientTickEventsMethod(Minecraft client) {
-        changeLogLevelBaseOnDebugConfig();
-    }
-
-    /**
-     * Dynamically changing log level based on debug mode config.
-     */
-    private static void changeLogLevelBaseOnDebugConfig() {
-        if (Config.getInstance().debugMode || Balm.platform().isDevelopmentEnvironment()) {
-            if (!log.isDebugEnabled()) {
-                Configurator.setLevel("org.mcaccess.minecraftaccess", Level.DEBUG);
-            }
-        } else if (log.isDebugEnabled()) {
-            Configurator.setLevel("org.mcaccess.minecraftaccess", Level.INFO);
-        }
     }
 
     public static void setScreenReader(ScreenReaderInterface screenReader) {

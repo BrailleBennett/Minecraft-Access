@@ -121,7 +121,7 @@ is for providing user information to client side game when developing.
       `lombok`, `log4j`, `junit`.
     * `src/main/java`: Source code.
     * `src/main/resources`
-        * `log4j.xml`: Log configuration.
+        * `log4j.yaml`: Log configuration.
         * `architectury.common.json`: Configuration.
         * `minecraft_access.accesswidener`: Yet another configuration.
         * `minecraft_access-common.mixins.json`: Mixin configuration that tells the Mixin framework where to find Mixin

@@ -10,7 +10,7 @@ idea {
 }
 
 loom {
-    log4jConfigs.from(file('../log4j.xml'))
+    log4jConfigs.from(file('../log4j.yaml'))
     runs {
         remove server
         client {
@@ -32,4 +32,6 @@ dependencies {
     runtimeOnly libs.balmFabric
     runtimeOnly libs.fabricApi
     runtimeOnly libs.clothConfigFabric
+    runtimeOnly libs.jacksonDataformatYaml
+    runtimeOnly libs.jacksonDatabind
 }

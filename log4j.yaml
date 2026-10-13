@@ -1,0 +1,87 @@
+Configuration:
+  status: WARN
+  Appenders:
+    Console:
+      name: SysOut
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: "[%d{HH:mm:ss}] [%t/%level] (%logger{1}): %msg%n"
+    Queue:
+      name: ServerGuiConsole
+      PatternLayout:
+        pattern: "[%d{HH:mm:ss}] [%t/%level] (%logger{1}): %msg%n"
+    RollingRandomAccessFile:
+      - name: LatestFile
+        fileName: logs/latest.log
+        filePattern: logs/%d{yyyy-MM-dd}-%i.log.gz
+        PatternLayout:
+          pattern: "[%d{HH:mm:ss}] [%t/%level] (%logger{1}): %msg%n"
+        Policies:
+          OnStartupTriggeringPolicy: {}
+      - name: DebugFile
+        fileName: logs/debug.log
+        filePattern: logs/debug-%d{yyyy-MM-dd}-%i.log.gz
+        PatternLayout:
+          pattern: "[%d{HH:mm:ss}] [%t/%level] (%logger{1}): %msg%n"
+        Policies:
+          OnStartupTriggeringPolicy: {}
+  Loggers:
+    Root:
+      level: INFO
+      AppenderRef:
+        - ref: SysOut
+          level: ALL
+        - ref: DebugFile
+          level: ALL
+        - ref: LatestFile
+          level: INFO
+        - ref: ServerGuiConsole
+          level: INFO
+    Logger:
+      - name: org.mcaccess.minecraftaccess
+        level: DEBUG
+        AppenderRef:
+          - ref: SysOut
+            level: ALL
+          - ref: DebugFile
+            level: ALL
+          - ref: LatestFile
+            level: INFO
+          - ref: ServerGuiConsole
+            level: INFO
+      - name: org.mcaccess.minecraftaccess.compat
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.access_menu
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.AutoLibrarySetup
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.BiomeIndicator
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.CameraControls
+        level: TRACE
+      - name: org.mcaccess.minecraftaccess.features.FallDetector
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.HUDStatus
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.inventory_controls
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.MenuFix
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.MouseSimulation
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.narrate_crosshair
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.NarrateHeldItem
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.PlayerStatus
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.PlayerWarnings
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.point_of_interest
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.PositionNarrator
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.features.XPIndicator
+        level: DEBUG
+      - name: org.mcaccess.minecraftaccess.mixin
+        level: DEBUG

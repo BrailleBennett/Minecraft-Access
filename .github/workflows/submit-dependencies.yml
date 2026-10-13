@@ -1,0 +1,22 @@
+name: Submit Dependencies
+
+on:
+  workflow_run:
+    workflows: [ 'Dependency Graph Generation' ]
+    types: [ completed ]
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  submit-dependency-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download and submit dependency graph
+        uses: gradle/actions/dependency-submission@3f5f9adaf7d9fecd50b5935e54106014257a94e6 # v6.4.0
+        with:
+          dependency-graph: download-and-submit
+          build-scan-publish: true
+          build-scan-terms-of-use-url: "https://gradle.com/terms-of-service"
+          build-scan-terms-of-use-agree: "yes"

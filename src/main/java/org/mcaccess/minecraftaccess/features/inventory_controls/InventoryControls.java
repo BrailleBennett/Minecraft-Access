@@ -2,7 +2,6 @@ package org.mcaccess.minecraftaccess.features.inventory_controls;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +17,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.AbstractRecipeBookScreen;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
-import net.minecraft.client.gui.screens.inventory.BrewingStandScreen;
 import net.minecraft.client.gui.screens.inventory.CraftingScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
@@ -27,7 +25,6 @@ import net.minecraft.client.gui.screens.recipebook.SearchRecipeBookCategory;
 import net.minecraft.client.input.MouseButtonInfo;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
@@ -40,14 +37,13 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.ExtendedRecipeBookCategory;
-import net.minecraft.world.level.block.entity.BrewingStandBlockEntity;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import org.mcaccess.minecraftaccess.Config;
 import org.mcaccess.minecraftaccess.MainClass;
+import org.mcaccess.minecraftaccess.features.NarrateHeldItem;
 import org.mcaccess.minecraftaccess.mixin.AbstractContainerScreenAccessor;
 import org.mcaccess.minecraftaccess.mixin.AbstractRecipeBookScreenAccessor;
 import org.mcaccess.minecraftaccess.mixin.AnvilScreenAccessor;
@@ -107,7 +103,7 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.change_group/previous"))
                 .withDefault(InputBinding.key(InputConstants.KEY_C, KeyModifiers.of(KeyModifier.SHIFT)))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     log.debug("Group key pressed");
                     changeGroup(false);
                     return true;
@@ -117,7 +113,7 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.change_group/next"))
                 .withDefault(InputBinding.key(InputConstants.KEY_C))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     log.debug("Group key pressed");
                     changeGroup(true);
                     return true;
@@ -127,7 +123,7 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.switch_tab/previous"))
                 .withDefault(InputBinding.key(InputConstants.KEY_V, KeyModifiers.of(KeyModifier.SHIFT)))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     log.debug("Switch Tab key pressed");
                     if (currentScreen instanceof InventoryScreen || currentScreen instanceof CraftingScreen) {
                         changeRecipeTab(false);
@@ -143,7 +139,7 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.switch_tab/next"))
                 .withDefault(InputBinding.key(InputConstants.KEY_V))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     log.debug("Switch Tab key pressed");
                     if (currentScreen instanceof InventoryScreen || currentScreen instanceof CraftingScreen) {
                         changeRecipeTab(true);
@@ -159,7 +155,7 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.move/left"))
                 .withDefault(InputBinding.key(InputConstants.KEY_J))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     log.debug("Left key pressed");
                     focusSlotItemAt(FocusDirection.LEFT);
                     return true;
@@ -169,7 +165,7 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.move/right"))
                 .withDefault(InputBinding.key(InputConstants.KEY_L))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     log.debug("Right key pressed");
                     focusSlotItemAt(FocusDirection.RIGHT);
                     return true;
@@ -179,7 +175,7 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.move/up"))
                 .withDefault(InputBinding.key(InputConstants.KEY_I))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     log.debug("Up key pressed");
                     focusSlotItemAt(FocusDirection.UP);
                     return true;
@@ -189,16 +185,15 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.switch_recipe_book_page/previous"))
                 .withDefault(InputBinding.key(InputConstants.KEY_I, KeyModifiers.of(KeyModifier.SHIFT)))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     if (currentGroup.isScrollable) {
                         log.debug("Previous Recipe Book page key pressed");
                         if (isRecipeBookOpen()) {
                             clickPreviousRecipeBookPage();
-                            return true;
                         } else {
                             MouseUtils.Wheel.UP.scroll();
-                            return true;
                         }
+                        return true;
                     }
                     return false;
                 })
@@ -207,7 +202,7 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.move/down"))
                 .withDefault(InputBinding.key(InputConstants.KEY_K))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     log.debug("Down key pressed");
                     focusSlotItemAt(FocusDirection.DOWN);
                     return true;
@@ -217,16 +212,15 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.switch_recipe_book_page/next"))
                 .withDefault(InputBinding.key(InputConstants.KEY_K, KeyModifiers.of(KeyModifier.SHIFT)))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     if (currentGroup.isScrollable) {
                         log.debug("Next Recipe Book page key pressed");
                         if (isRecipeBookOpen()) {
                             clickNextRecipeBookPage();
-                            return true;
                         } else {
                             MouseUtils.Wheel.DOWN.scroll();
-                            return true;
                         }
+                        return true;
                     }
                     return false;
                 })
@@ -235,8 +229,9 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.jump_to_textbox"))
                 .withDefault(InputBinding.key(InputConstants.KEY_T))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
-                    if (CreativeModeInventoryScreenAccessor.getSelectedTab().getType() == CreativeModeTab.Type.SEARCH && currentScreen instanceof CreativeModeInventoryScreen creativeInventoryScreen) {
+                .handleScreenInput(_ -> {
+                    if (CreativeModeInventoryScreenAccessor.getSelectedTab().getType() == CreativeModeTab.Type.SEARCH
+                            && currentScreen instanceof CreativeModeInventoryScreen creativeInventoryScreen) {
                         setSearchBoxFocus(((CreativeModeInventoryScreenAccessor) creativeInventoryScreen).getSearchBox(), true);
                         return true;
                     } else if (currentScreen instanceof AnvilScreen anvilScreen) {
@@ -244,7 +239,7 @@ public class InventoryControls implements BalmClientModule {
                         return true;
                     } else if (isRecipeBookOpen()) {
                         // resolve can-not-enter-characters-issue https://github.com/minecraft-access/minecraft-access/issues/67
-                        Minecraft.getInstance().screen.setFocused(currentRecipeBookWidget);
+                        Minecraft.getInstance().gui.screen().setFocused(currentRecipeBookWidget);
                         setSearchBoxFocus(((RecipeBookComponentAccessor) currentRecipeBookWidget).getSearchBox(), true);
                         return true;
                     }
@@ -255,7 +250,7 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.toggle_craftable"))
                 .withDefault(InputBinding.key(InputConstants.KEY_R))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     if (currentRecipeBookWidget == null) return false;
                     if (!currentRecipeBookWidget.isVisible()) return false;
 
@@ -274,17 +269,20 @@ public class InventoryControls implements BalmClientModule {
         Kuma.createKeyMapping(Identifier.fromNamespaceAndPath(MainClass.MOD_ID, "inventory_controls.fuel_status"))
                 .withDefault(InputBinding.key(InputConstants.KEY_U))
                 .overrideCategory(KeyMappingCategories.INVENTORY_CONTROLS)
-                .handleScreenInput(event -> {
+                .handleScreenInput(_ -> {
                     if (currentScreen.getMenu() instanceof AbstractFurnaceMenu furnace) {
                         MainClass.narrate(I18n.get("minecraft_access.inventory_controls.fuel_status",
                                 Math.round(furnace.getLitProgress() * 100),
                                 Math.round(furnace.getBurnProgress() * 100)), true);
                         return true;
-                    } else if (currentScreen instanceof BrewingStandScreen brewingStand) {
-                        BrewingStandMenu menu = brewingStand.getMenu();
-                        MainClass.narrate(I18n.get("minecraft_access.inventory_controls.fuel_status",
-                                (menu.getFuel() * 100) / BrewingStandBlockEntity.FUEL_USES,
-                                (menu.getBrewingTicks() * 100) / PotionBrewing.BREWING_TIME_SECONDS * 20), true);
+                    } else if (currentScreen.getMenu() instanceof BrewingStandMenu brewingStand) {
+                        int fuelPercent = brewingStand.getTotalFuel() > 0 ? (brewingStand.getFuel() * 100) / brewingStand.getTotalFuel() : 0;
+                        int brewingTicks = brewingStand.getBrewingTicks();
+                        int totalBrewingTicks = brewingStand.getTotalBrewingTicks();
+                        int brewPercent = (brewingTicks > 0 && totalBrewingTicks > 0)
+                                ? ((totalBrewingTicks - brewingTicks) * 100) / totalBrewingTicks
+                                : 0;
+                        MainClass.narrate(I18n.get("minecraft_access.inventory_controls.fuel_status", fuelPercent, brewPercent), true);
                         return true;
                     }
                     return false;
@@ -296,7 +294,7 @@ public class InventoryControls implements BalmClientModule {
         if (!interval.isReady()) return;
 
         if (client.player == null) return;
-        if (client.screen == null) {
+        if (client.gui.screen() == null) {
             previousScreen = null;
             currentScreen = null;
             currentGroupIndex = 0;
@@ -304,14 +302,14 @@ public class InventoryControls implements BalmClientModule {
             currentRecipeBookWidget = null;
             return;
         }
-        if (!(client.screen instanceof AbstractContainerScreen)) return;
+        if (!(client.gui.screen() instanceof AbstractContainerScreen)) return;
         if (!config.enabled) {
             return;
         }
 
         loadConfig();
-        currentScreen = (AbstractContainerScreenAccessor) client.screen;
-        currentRecipeBookWidget = getRecipeBookWidget(client.screen);
+        currentScreen = (AbstractContainerScreenAccessor) client.gui.screen();
+        currentRecipeBookWidget = getRecipeBookWidget(client.gui.screen());
         currentSlotsGroupList = GroupGenerator.generateGroupsFromSlots(currentScreen);
 
         interval.adjustNextReadyTimeBy(keyListener());
@@ -352,7 +350,7 @@ public class InventoryControls implements BalmClientModule {
 
     private @Nullable RecipeBookComponent<?> getRecipeBookWidget(Screen screen) {
         if (screen instanceof AbstractRecipeBookScreen<?> recipeBookScreen) {
-            return ((AbstractRecipeBookScreenAccessor) recipeBookScreen).minecraft_access$getRecipeBookComponent();
+            return ((AbstractRecipeBookScreenAccessor) recipeBookScreen).getRecipeBookComponent();
         }
         return null;
     }
@@ -369,9 +367,8 @@ public class InventoryControls implements BalmClientModule {
      * Handles the key inputs.
      */
     private boolean keyListener() {
-        Minecraft client = Minecraft.getInstance();
-        boolean isEnterPressed = InputConstants.isKeyDown(client.getWindow(), InputConstants.KEY_RETURN)
-                || InputConstants.isKeyDown(client.getWindow(), InputConstants.KEY_NUMPADENTER);
+        boolean isEnterPressed = InputConstants.isKeyDown(InputConstants.KEY_RETURN)
+                || InputConstants.isKeyDown(InputConstants.KEY_NUMPADENTER);
 
         //<editor-fold desc="When using a search box">
         //<editor-fold desc="When using a search box">
@@ -581,23 +578,44 @@ public class InventoryControls implements BalmClientModule {
         }
 
         ItemStack itemStack = slot.getItem();
-        // <slot row col prefix> <count>
-        String info = "%s %s".formatted(currentGroup.getSlotPrefix(slot),
-                (itemStack.getCount() != 1 && !itemStack.isEmpty()) ? String.valueOf(itemStack.getCount()) : "");
-
-        // <name> <description>
-        StringBuilder toolTipString = new StringBuilder();
-        List<Component> toolTipList = itemStack.getTooltipLines(TooltipContext.EMPTY, Minecraft.getInstance().player, TooltipFlag.NORMAL);
-        for (Component line : toolTipList) {
-            toolTipString.append(line.getString()).append(' ');
+        StringBuilder narration = new StringBuilder();
+        String prefix = currentGroup.getSlotPrefix(slot);
+        if (!prefix.isEmpty()) {
+            narration.append(prefix).append(' ');
         }
 
-        Optional.ofNullable(itemStack.get(DataComponents.JUKEBOX_PLAYABLE))
-                .flatMap(jukeboxPlayable -> jukeboxPlayable.song().unwrapKey())
-                .ifPresent(discNumber -> toolTipString.append(' ').append(I18n.get("jukebox_song.minecraft." + discNumber.identifier().getPath())));
+        int count = itemStack.getCount();
+        if (count != 1 && !itemStack.isEmpty()) {
+            narration.append(count).append(' ');
+        }
 
-        // <slot row col prefix> <count> <name> <description>
-        return "%s %s".formatted(info, toolTipString.toString());
+        String baseItemName = NarrateHeldItem.getItemName(itemStack, false);
+
+        List<Component> toolTipList = itemStack.getTooltipLines(TooltipContext.EMPTY, Minecraft.getInstance().player, TooltipFlag.NORMAL);
+        StringBuilder toolTipBuilder = new StringBuilder();
+        for (Component line : toolTipList) {
+            String text = line.getString();
+            if (!text.isEmpty()) {
+                toolTipBuilder.append(text).append(' ');
+            }
+        }
+        String toolTipText = toolTipBuilder.toString().trim();
+
+        if (toolTipText.contains(baseItemName)) {
+            narration.append(toolTipText);
+        } else if (toolTipText.isEmpty()) {
+            narration.append(baseItemName);
+        } else {
+            narration.append(baseItemName);
+            for (Component line : toolTipList) {
+                String text = line.getString();
+                if (!baseItemName.contains(text)) {
+                    narration.append(' ').append(text);
+                }
+            }
+        }
+
+        return narration.toString().trim();
     }
 
     /**

@@ -18,7 +18,10 @@ neoForge {
             ideName = 'NeoForge Client'
         }
         configureEach {
-            jvmArguments = ['-ea']
+            jvmArguments = [
+                '-ea',
+                "-Dlog4j.configurationFile=${rootProject.file('log4j.yaml').absolutePath}"
+            ]
         }
     }
 }
@@ -29,4 +32,6 @@ tasks.named('downloadAssets', net.neoforged.nfrtgradle.DownloadAssets) {
 
 dependencies {
     runtimeOnly project(':')
+    runtimeOnly libs.jacksonDataformatYaml
+    runtimeOnly libs.jacksonDatabind
 }
