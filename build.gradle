@@ -71,7 +71,10 @@ dependencies {
     testImplementation libs.mockitoCore
     testImplementation libs.mockitoJunitJupiter
 
+    runtimeOnly libs.jacksonDataformatYaml
+    runtimeOnly libs.jacksonDatabind
     testRuntimeOnly libs.jacksonDataformatYaml
+    testRuntimeOnly libs.jacksonDatabind
 
     testCompileOnly libs.jsr305
 
