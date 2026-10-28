@@ -22,12 +22,16 @@ public class NarrateTarget implements AccessMenuFunction {
             case BLOCK -> {
                 BlockHitResult blockHit = (BlockHitResult) hit;
                 BlockPos blockPos = blockHit.getBlockPos();
-                String narration = new StringBuilder()
-                        .append(MainClass.registry(WorldNarrator.class).get(Config.getInstance().narrateCrosshair.narrator).narrate(blockPos))
-                        .append(I18n.get("minecraft_access.other.words_connection"))
-                        .append(NarrationUtils.narrateRelativePositionOfPlayerAnd(blockPos))
-                        .toString();
-                MainClass.narrate(narration, true);
+                StringBuilder narration = new StringBuilder()
+                        .append(MainClass.registry(WorldNarrator.class).get(Config.getInstance().narrateCrosshair.narrator).narrate(blockPos));
+
+                String distance = NarrationUtils.narrateRelativePositionOfPlayerAnd(blockPos);
+                if (!distance.isBlank()) {
+                    narration.append(I18n.get("minecraft_access.other.words_connection"))
+                            .append(distance);
+                }
+
+                MainClass.narrate(narration.toString(), true);
             }
         }
     }
